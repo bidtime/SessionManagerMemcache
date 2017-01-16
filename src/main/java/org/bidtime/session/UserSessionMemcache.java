@@ -3,6 +3,8 @@
  */
 package org.bidtime.session;
 
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -59,8 +61,10 @@ public class UserSessionMemcache {
 		}
 	}
 	
-	public static void setTokenToSession(HttpServletResponse res, String token, MemcacheManage mm) {
-		mm.set("token", token);
+	public static void setTokenToSession(HttpServletRequest request, HttpServletResponse res, MemcacheManage mm) {
+		String token = UUID.randomUUID().toString();
+		String sessionId = UserSessionMemcache.getSessionId(request, true);
+		mm.set("token", sessionId);
 		RequestSessionUtils.setToken(res, token, mm.getDefaultTm());
 	}
 	
