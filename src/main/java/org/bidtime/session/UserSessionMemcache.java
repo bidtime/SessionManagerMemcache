@@ -29,8 +29,11 @@ public class UserSessionMemcache {
 	}
 	
 	public static SessionLoginState getSessionLoginState(HttpServletRequest request) {
-		String sessionId = UserSessionMemcache.getSessionId(request, false);
-	    //CSessionUser cSessionUser = null;    //UserSessionInfo.user_getUserOfRequest(request);
+		return getSessionLoginState(request, false);
+	}
+	
+	public static SessionLoginState getSessionLoginState(HttpServletRequest request, boolean force) {
+		String sessionId = UserSessionMemcache.getSessionId(request, force);
 	    // 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限 4: 游客访问商城
 	    SessionLoginState sessionLogin = UserSessionMemcache
 	            .user_getSessionLoginState(sessionId); // 0:未登陆, 1:正常登陆,2:被其它用户踢
@@ -76,9 +79,14 @@ public class UserSessionMemcache {
 		return request_login(request, u, false);
 	}
 
-	// user_getUserOfRequest
+	// getUserOfRequest
 	public static SessionUserBase getUserOfRequest(HttpServletRequest request) {
 		return user_getUserOfSessionId(getSessionId(request));
+	}
+
+	// getUserOfRequest
+	public static SessionUserBase getUserOfRequest(HttpServletRequest request, boolean force) {
+		return user_getUserOfSessionId(getSessionId(request, force));
 	}
 	
 	// user_getUserIdOfRequest
