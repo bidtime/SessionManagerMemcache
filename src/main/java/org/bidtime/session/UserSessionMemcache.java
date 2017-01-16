@@ -28,6 +28,15 @@ public class UserSessionMemcache {
 		return RequestSessionUtils.getSessionId(req);
 	}
 	
+	public static SessionLoginState getSessionLoginState(HttpServletRequest request) {
+		String sessionId = UserSessionMemcache.getSessionId(request, false);
+	    //CSessionUser cSessionUser = null;    //UserSessionInfo.user_getUserOfRequest(request);
+	    // 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限 4: 游客访问商城
+	    SessionLoginState sessionLogin = UserSessionMemcache
+	            .user_getSessionLoginState(sessionId); // 0:未登陆, 1:正常登陆,2:被其它用户踢
+	    return sessionLogin;
+	}
+	
 	// httpSession_removeAttr
 	public static void httpSession_destroyAttr(HttpSession session) {
 		httpSession_destroy(session, true);
