@@ -3,8 +3,12 @@
  */
 package org.bidtime.session;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.bidtime.session.utils.CookieUtils;
 
 /**
  * @author jss
@@ -34,6 +38,19 @@ public class RequestSessionUtils {
 	public static String getSessionId(HttpServletRequest request) {
 		return getSessionId(request, false);
 	}
+	
+	public static String getToken(HttpServletRequest req) {
+		Cookie c = CookieUtils.getCookie(req, "token");
+		return c.getValue();
+	}
+	
+	public static void setToken(HttpServletResponse res, String value, int age) {
+		CookieUtils.addCookie(res, "token", value, age);
+	}
+	
+//	public static void setToken(HttpServletResponse res, String value) {
+//		CookieUtils.addCookie(res, "token", value, 7, EnumAge.DAY);
+//	}
 	
 //	public static String getSessionIdOfCookie(HttpServletRequest req) {
 //		// 返回Cookie

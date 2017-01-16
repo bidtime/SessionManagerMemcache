@@ -4,9 +4,11 @@
 package org.bidtime.session;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.bidtime.memcache.MemcacheManage;
 import org.bidtime.memcachesession.SessionMemcache;
 import org.bidtime.memcachesession.SessionOnlineMemcache;
 import org.bidtime.session.bean.SessionUserBase;
@@ -38,6 +40,28 @@ public class UserSessionMemcache {
 	    SessionLoginState sessionLogin = UserSessionMemcache
 	            .user_getSessionLoginState(sessionId); // 0:未登陆, 1:正常登陆,2:被其它用户踢
 	    return sessionLogin;
+	}
+	
+	public static SessionLoginState getSessionTokenState(HttpServletRequest request, MemcacheManage mm) {
+		String token = RequestSessionUtils.getToken(request);
+		if (token != null && !token.isEmpty()) {
+			String sessionId = (String)SessionOnlineMemcache.getInstance().get(token);
+			if (sessionId != null) {
+				mm.replace(token, sessionId);
+			}
+			SessionLoginState sessionLogin = UserSessionMemcache.user_getSessionLoginState(sessionId);
+			if (sessionLogin == null) {
+				sessionLogin = new SessionLoginState(null, 5);	// 5:token 重新登陆
+			}
+			return sessionLogin;
+		} else {
+			return null;
+		}
+	}
+	
+	public static void setTokenToSession(HttpServletResponse res, String token, MemcacheManage mm) {
+		mm.set("token", token);
+		RequestSessionUtils.setToken(res, token, mm.getDefaultTm());
 	}
 	
 	// httpSession_removeAttr
@@ -247,7 +271,8 @@ public class UserSessionMemcache {
 	protected static boolean userToSession_DoubleOnLine(HttpSession session, SessionUserBase u) {
 		if (session != null && u != null) {
 			// 设置user对象
-			SessionMemcache.getInstance().set(session.getId(), u);
+			String sessionId = session.getId();
+			SessionMemcache.getInstance().set(sessionId, u);
 			SessionOnlineMemcache.getInstance().set(u.getId(), session.getId());
 			return true;
 		} else {
