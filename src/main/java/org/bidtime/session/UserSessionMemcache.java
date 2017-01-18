@@ -74,11 +74,18 @@ public class UserSessionMemcache {
 	    return ss;
 	}
 	
-	public static void setTokenToSession(HttpServletRequest request, HttpServletResponse res, MemcacheManage mm) {
-		String token = UUID.randomUUID().toString();
-		String sessionId = UserSessionMemcache.getSessionId(request, true);
-		mm.set("token", sessionId);
-		RequestSessionUtils.setToken(res, token, mm.getDefaultTm());
+//	public static void setTokenToSession(HttpServletRequest request, HttpServletResponse res, MemcacheManage mm) {
+//		String token = UUID.randomUUID().toString();
+//		String sessionId = UserSessionMemcache.getSessionId(request, true);
+//		mm.set("token", sessionId);
+//		RequestSessionUtils.setToken(res, token, mm.getDefaultTm());
+//	}
+	
+	public static void setTokenToSession(String openId, HttpServletResponse res, MemcacheManage mm) {
+		//String token = UUID.randomUUID().toString();
+		//String sessionId = UserSessionMemcache.getSessionId(request, true);
+		mm.set("token", openId);
+		RequestSessionUtils.setToken(res, openId, mm.getDefaultTm());
 	}
 	
 	// httpSession_removeAttr
