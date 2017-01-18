@@ -38,27 +38,40 @@ public class UserSessionMemcache {
 	
 	public static SessionLoginState getSessionLoginState(HttpServletRequest request, boolean force) {
 		String sessionId = UserSessionMemcache.getSessionId(request, force);
-	    // 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限 4: 游客访问商城
+	    // 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限
 	    SessionLoginState sessionLogin = UserSessionMemcache
-	            .user_getSessionLoginState(sessionId); // 0:未登陆, 1:正常登陆,2:被其它用户踢
+	            .user_getSessionLoginState(sessionId);
 	    return sessionLogin;
 	}
 	
 	public static SessionLoginState getSessionTokenState(HttpServletRequest request, MemcacheManage mm) {
-		String token = RequestSessionUtils.getToken(request);
-		if (token != null && !token.isEmpty()) {
-			String sessionId = (String)SessionOnlineMemcache.getInstance().get(token);
-			if (sessionId != null) {
-				mm.replace(token, sessionId);
+		return getSessionTokenState(request, false, mm);
+	}
+	
+	public static SessionLoginState getSessionTokenState(HttpServletRequest request, boolean force, MemcacheManage mm) {
+		// 先从 sessionId 中取，是否有存储的
+		SessionLoginState ss = getSessionLoginState(request, force);
+		int nLoginState = 0;
+	    if (ss != null) {
+	    	nLoginState = ss.getLoginState();
+	    }
+	    if (nLoginState == 0) {
+			String token = RequestSessionUtils.getToken(request);
+			if (token != null && !token.isEmpty()) {
+				String sessionId = (String)SessionOnlineMemcache.getInstance().get(token);
+				if (sessionId != null) {
+					mm.replace(token, sessionId);
+				}
+				SessionLoginState sessionLogin = UserSessionMemcache.user_getSessionLoginState(sessionId);
+				if (sessionLogin == null) {
+					sessionLogin = new SessionLoginState(null, 4);	// 4:token 重新登陆
+				}
+				return sessionLogin;
+			} else {
+				return null;
 			}
-			SessionLoginState sessionLogin = UserSessionMemcache.user_getSessionLoginState(sessionId);
-			if (sessionLogin == null) {
-				sessionLogin = new SessionLoginState(null, 5);	// 5:token 重新登陆
-			}
-			return sessionLogin;
-		} else {
-			return null;
 		}
+	    return ss;
 	}
 	
 	public static void setTokenToSession(HttpServletRequest request, HttpServletResponse res, MemcacheManage mm) {
@@ -234,21 +247,21 @@ public class UserSessionMemcache {
 	 * return
 	 * 	0: not login, 1: logined, 2: another user logined.
 	 */
-	public static int user_loginStateOfSessionId(String sessionId) {
-		int nReturn = 0;
-		if (sessionId != null) {
-			SessionUserBase u = user_getUserOfSessionId(sessionId);
-			if (u != null) {
-				if (SessionOnlineMemcache.getInstance().isDoubleOnLine(
-					u.getId(), sessionId)) {
-					nReturn = 2;
-				} else {
-					nReturn = 1;
-				}
-			}
-		}
-		return nReturn;
-	}
+//	public static int user_loginStateOfSessionId(String sessionId) {
+//		int nReturn = 0;
+//		if (sessionId != null) {
+//			SessionUserBase u = user_getUserOfSessionId(sessionId);
+//			if (u != null) {
+//				if (SessionOnlineMemcache.getInstance().isDoubleOnLine(
+//					u.getId(), sessionId)) {
+//					nReturn = 2;
+//				} else {
+//					nReturn = 1;
+//				}
+//			}
+//		}
+//		return nReturn;
+//	}
 	
 	public static SessionLoginState user_getSessionLoginState(String sessionId) {
 		//String sessionId = getSessionId(request);
