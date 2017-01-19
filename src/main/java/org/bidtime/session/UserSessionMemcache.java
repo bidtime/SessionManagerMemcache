@@ -3,8 +3,6 @@
  */
 package org.bidtime.session;
 
-import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -82,8 +80,6 @@ public class UserSessionMemcache {
 //	}
 	
 	public static void setTokenToSession(String openId, HttpServletResponse res, MemcacheManage mm) {
-		//String token = UUID.randomUUID().toString();
-		//String sessionId = UserSessionMemcache.getSessionId(request, true);
 		mm.set("token", openId);
 		RequestSessionUtils.setToken(res, openId, mm.getDefaultTm());
 	}
@@ -250,28 +246,7 @@ public class UserSessionMemcache {
 		return bDoubleOnLine;
 	}
 	
-	/*
-	 * return
-	 * 	0: not login, 1: logined, 2: another user logined.
-	 */
-//	public static int user_loginStateOfSessionId(String sessionId) {
-//		int nReturn = 0;
-//		if (sessionId != null) {
-//			SessionUserBase u = user_getUserOfSessionId(sessionId);
-//			if (u != null) {
-//				if (SessionOnlineMemcache.getInstance().isDoubleOnLine(
-//					u.getId(), sessionId)) {
-//					nReturn = 2;
-//				} else {
-//					nReturn = 1;
-//				}
-//			}
-//		}
-//		return nReturn;
-//	}
-	
 	public static SessionLoginState user_getSessionLoginState(String sessionId) {
-		//String sessionId = getSessionId(request);
 		if (sessionId != null) {
 			int nLoginState = 0;
 			SessionUserBase u = user_getUserOfSessionId(sessionId);
