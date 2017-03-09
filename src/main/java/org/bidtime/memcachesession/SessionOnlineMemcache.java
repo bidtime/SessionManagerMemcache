@@ -1,8 +1,7 @@
 package org.bidtime.memcachesession;
 
 import org.apache.commons.lang.StringUtils;
-import org.bidtime.memcache.MemcacheKeyManage;
-import org.bidtime.utils.spring.SpringContextUtils;
+import org.bidtime.memcache.MemcacheFlagKeyManage;
 
 /**
  * 不做登录验证枚举
@@ -10,28 +9,18 @@ import org.bidtime.utils.spring.SpringContextUtils;
  * @author karl
  * 
  */
-public class SessionOnlineMemcache extends MemcacheKeyManage {
-
-	private static SessionOnlineMemcache instance;
-
-	public static SessionOnlineMemcache getInstance() {
-		if (instance == null) {
-			synchronized (SessionOnlineMemcache.class) {
-				if (instance == null) {
-					instance = (SessionOnlineMemcache) SpringContextUtils
-							.getBean("sessionOnlineMemcache");
-				}
-			}
-		}
-		return instance;
+public class SessionOnlineMemcache extends MemcacheFlagKeyManage {
+	
+	public SessionOnlineMemcache(String keyFlag) {
+		super(keyFlag);
 	}
 	
 	public String getSessionOfCustId(String id) {
-		return getValue(id);
+		return getString(id);
 	}
 	
 	public boolean isOnLine(String id, String sessionId) {
-		String val = getValue(id);
+		String val = getString(id);
 		if (val != null) {
 			if (StringUtils.isNotEmpty(val)) {
 				return StringUtils.equals(val, sessionId);
@@ -44,12 +33,12 @@ public class SessionOnlineMemcache extends MemcacheKeyManage {
 	}
 	
 	public boolean isUserLogined(String userId) {
-		String val = getValue(userId);
-		return (StringUtils.isEmpty(val)) ? false:true;
+		String val = getString(userId);
+		return (StringUtils.isEmpty(val)) ? false : true;
 	}
 	
 	public boolean isDoubleOnLine(String id, String sessionId) {
-		String val = getValue(id);
+		String val = getString(id);
 		if (val != null) {
 			if (StringUtils.isNotEmpty(val)) {
 				return !StringUtils.equals(val, sessionId);

@@ -1,7 +1,6 @@
 package org.bidtime.memcachesession;
 
-import org.bidtime.memcache.MemcacheKeyManage;
-import org.bidtime.utils.spring.SpringContextUtils;
+import org.bidtime.memcache.MemcacheFlagKeyManage;
 
 /**
  * 不做登录验证枚举
@@ -9,20 +8,40 @@ import org.bidtime.utils.spring.SpringContextUtils;
  * @author karl
  * 
  */
-public class SessionMemcache extends MemcacheKeyManage {
+public class SessionMemcache extends MemcacheFlagKeyManage {
+	
+	public SessionMemcache(String userFlag) {
+		this(userFlag, false);
+	}
+	
+	public SessionMemcache(String userFlag, boolean singleLogin) {
+		super(userFlag);
+		setSingleLogin(singleLogin);
+	}
+	
+	private boolean singleLogin;
 
-	private static SessionMemcache instance;
-
-	public static SessionMemcache getInstance() {
-		if (instance == null) {
-			synchronized (SessionMemcache.class) {
-				if (instance == null) {
-					instance = (SessionMemcache) SpringContextUtils
-							.getBean("sessionMemcache");
-				}
-			}
-		}
-		return instance;
+	private SessionOnlineMemcache onlineCache;
+	
+	public boolean isSingleLogin() {
+		return singleLogin;
 	}
 
+	public void setSingleLogin(boolean singleLogin) {
+		this.singleLogin = singleLogin;
+		if (!singleLogin) {
+			onlineCache = new SessionOnlineMemcache(userFlag + "_doubleuseronline_");
+		} else {
+			onlineCache = null;
+		}
+	}
+
+	public SessionOnlineMemcache getOnlineCache() {
+		return onlineCache;
+	}
+
+	public void setOnlineCache(SessionOnlineMemcache onlineCache) {
+		this.onlineCache = onlineCache;
+	}
+	
 }

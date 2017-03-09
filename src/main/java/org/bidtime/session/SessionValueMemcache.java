@@ -5,26 +5,30 @@ package org.bidtime.session;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.bidtime.memcache.MemcacheKeyManage;
+import org.bidtime.memcache.MemcacheFlagKeyManage;
 
 /**
  * @author Administrator
  * 
  */
-public class SessionValueMemcache extends MemcacheKeyManage {
+public class SessionValueMemcache extends MemcacheFlagKeyManage {
+	
+	public SessionValueMemcache(String keyFlag) {
+		super(keyFlag);
+	}
 
-	public String getSessionId(HttpServletRequest req, boolean newSession) {
+	protected String getSessionId(HttpServletRequest req, boolean newSession) {
 		return RequestSessionUtils.getSessionId(req, newSession);
 	}
 	
-	public String getSessionId(HttpServletRequest req) {
+	protected String getSessionId(HttpServletRequest req) {
 		return RequestSessionUtils.getSessionId(req);
 	}
 
 	public boolean equals(String value, HttpServletRequest request) {
 		String id = getSessionId(request, false);
 		if (id != null) {
-			return equals(id, value);
+			return equals(id, value, false);
 		} else {
 			return false;
 		}
@@ -33,14 +37,16 @@ public class SessionValueMemcache extends MemcacheKeyManage {
 	public boolean equalsIgnoreCase(String value, HttpServletRequest request) {
 		String id = getSessionId(request, false);
 		if (id != null) {
-			return equalsIgnoreCase(id, value);
+			return equalsIgnoreCase(id, value, false);
 		} else {
 			return false;
 		}
 	}
+	
+	// set
 
 	public void set(String value, HttpServletRequest request) {
-		set(value, request, false);
+		this.set(value, request, false);
 	}
 
 	public void set(String value, HttpServletRequest request, boolean newSession) {
@@ -49,7 +55,7 @@ public class SessionValueMemcache extends MemcacheKeyManage {
 	}
 
 	public void set(Object value, HttpServletRequest request) {
-		set(value, request, false);
+		this.set(value, request, false);
 	}
 
 	public void set(Object value, HttpServletRequest request, boolean newSession) {
@@ -57,15 +63,19 @@ public class SessionValueMemcache extends MemcacheKeyManage {
 		set(id, value);
 	}
 	
-	public String getString(HttpServletRequest request) {
-		String id = String.valueOf(getSessionId(request, false));
-		return id;
-	}
+//	public String getString(HttpServletRequest request) {
+//		String id = String.valueOf(getSessionId(request, false));
+//		return id;
+//	}
+	
+	// get
 
 	public Object get(HttpServletRequest request) {
 		String id = getSessionId(request, false);
 		return get(id);
 	}
+	
+	// delete
 
 	public boolean delete(HttpServletRequest request) {
 		String id = getSessionId(request, false);
