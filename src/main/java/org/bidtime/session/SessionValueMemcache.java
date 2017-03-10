@@ -13,8 +13,7 @@ import org.bidtime.memcache.MemcacheFlagKeyManage;
  */
 public class SessionValueMemcache extends MemcacheFlagKeyManage {
 	
-	public SessionValueMemcache(String keyFlag) {
-		super(keyFlag);
+	public SessionValueMemcache() {
 	}
 
 	protected String getSessionId(HttpServletRequest req, boolean newSession) {

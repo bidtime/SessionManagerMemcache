@@ -11,8 +11,7 @@ import org.bidtime.memcache.MemcacheFlagKeyManage;
  */
 public class SessionOnlineMemcache extends MemcacheFlagKeyManage {
 	
-	public SessionOnlineMemcache(String keyFlag) {
-		super(keyFlag);
+	public SessionOnlineMemcache() {
 	}
 	
 	public String getSessionOfCustId(String id) {

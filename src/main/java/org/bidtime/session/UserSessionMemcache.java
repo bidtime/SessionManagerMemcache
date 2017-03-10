@@ -3,7 +3,10 @@
  */
 package org.bidtime.session;
 
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -19,22 +22,18 @@ public class UserSessionMemcache extends SessionMemcache {
 	private static final Logger logger = Logger
 			.getLogger(UserSessionMemcache.class);
 	
-	public UserSessionMemcache(String userFlag) {
-		this(userFlag, false);
+	public UserSessionMemcache() {
+		super();
 	}
 	
-	public UserSessionMemcache(String userFlag, boolean singleLogin) {
-		super(userFlag, singleLogin);
+	public UserSessionMemcache(boolean singleLogin) {
+		super(singleLogin);
 	}
 	
 	public String getSessionId(HttpServletRequest req, boolean newSession) {
 		return RequestSessionUtils.getSessionId(req, newSession);
 	}
-	
-//	public static void main(String[] args) {
-//		UserSessionMemcache us = new UserSessionMemcache("");
-//	}
-	
+
 	public String getSessionId(HttpServletRequest req) {
 		return RequestSessionUtils.getSessionId(req);
 	}
@@ -50,47 +49,46 @@ public class UserSessionMemcache extends SessionMemcache {
 	    return sessionLogin;
 	}
 	
-//	public static SessionLoginState getSessionTokenState(HttpServletRequest request, MemcacheManage mm) {
-//		return getSessionTokenState(request, false, mm);
-//	}
-//	
-//	public static SessionLoginState getSessionTokenState(HttpServletRequest request, boolean force, MemcacheManage mm) {
-//		// 先从 sessionId 中取，是否有存储的
-//		SessionLoginState ss = getSessionLoginState(request, force);
-//		int nLoginState = 0;
-//	    if (ss != null) {
-//	    	nLoginState = ss.getLoginState();
-//	    }
-//	    if (nLoginState == 0) {
-//			String token = RequestSessionUtils.getToken(request);
-//			if (token != null && !token.isEmpty()) {
-//				String sessionId = (String)SessionOnlineMemcache.getInstance().get(token);
-//				if (sessionId != null) {
-//					mm.replace(token, sessionId);
-//				}
-//				SessionLoginState sessionLogin = Userthis.user_getSessionLoginState(sessionId);
-//				if (sessionLogin == null) {
-//					sessionLogin = new SessionLoginState(null, 4);	// 4:token 重新登陆
-//				}
-//				return sessionLogin;
-//			} else {
-//				return null;
-//			}
-//		}
-//	    return ss;
-//	}
+	public SessionLoginState getSessionTokenState(HttpServletRequest request) {
+		return getSessionTokenState(request, false);
+	}
+
+	public SessionLoginState getSessionTokenState(HttpServletRequest request, boolean force) {
+		// 先从 sessionId 中取，是否有存储的
+		SessionLoginState ss = getSessionLoginState(request, force);
+		int nLoginState = 0;
+	    if (ss != null) {
+	    	nLoginState = ss.getLoginState();
+	    }
+	    if (nLoginState == 0) {
+			String token = RequestSessionUtils.getToken(request);
+			if (token != null && !token.isEmpty()) {
+				String sessionId = (String)this.onlineCache.get(token);
+				if (sessionId != null) {
+					sessionCache.replace(token, sessionId);
+				}
+				SessionLoginState sessionLogin = user_getSessionLoginState(sessionId);
+				if (sessionLogin == null) {
+					sessionLogin = new SessionLoginState(null, 4);	// 4:token 重新登陆
+				}
+				return sessionLogin;
+			} else {
+				return null;
+			}
+		}
+	    return ss;
+	}
 	
-//	public static void setTokenToSession(HttpServletRequest request, HttpServletResponse res, MemcacheManage mm) {
-//		String token = UUID.randomUUID().toString();
-//		String sessionId = Userthis.getSessionId(request, true);
-//		mm.set("token", sessionId);
-//		RequestSessionUtils.setToken(res, token, mm.getDefaultTm());
-//	}
+	public void setTokenToSession(HttpServletRequest request, HttpServletResponse res) {
+		String token = UUID.randomUUID().toString();
+		setTokenToSession(token, request, res);
+	}
 	
-//	public static void setTokenToSession(String openId, HttpServletResponse res, MemcacheManage mm) {
-//		mm.set("token", openId);
-//		RequestSessionUtils.setToken(res, openId, mm.getDefaultTm());
-//	}
+	public void setTokenToSession(String token, HttpServletRequest request, HttpServletResponse res) {
+		String sessionId = getSessionId(request, true);
+		this.sessionCache.set(token, sessionId);
+		RequestSessionUtils.setToken(res, token, sessionCache.getDefaultTm());
+	}
 	
 	// httpSession_removeAttr
 	public void httpSession_destroyAttr(HttpSession session) {
@@ -222,7 +220,7 @@ public class UserSessionMemcache extends SessionMemcache {
 			boolean bInvalid) {
 		if (sessionId != null) {
 			try {
-				this.delete(sessionId);
+				this.sessionCache.delete(sessionId);
 				SessionUserBase u = user_getUserOfSessionId(sessionId);
 				if (u != null) {
 					if (bInvalid) {
@@ -264,7 +262,7 @@ public class UserSessionMemcache extends SessionMemcache {
 					nLoginState = 2;
 				} else {
 					//replace sessionId's user memcache
-					this.replace(sessionId, u);
+					this.sessionCache.replace(sessionId, u);
 					nLoginState = 1;
 				}
 			}
@@ -279,9 +277,9 @@ public class UserSessionMemcache extends SessionMemcache {
 		if (session != null && u != null) {
 			// 设置user对象
 			String sessionId = session.getId();
-			this.set(sessionId, u);
+			this.sessionCache.set(sessionId, u);
 			if (this.isSingleLogin()) {
-				this.getOnlineCache().set(u.getId(), session.getId());
+				this.onlineCache.set(u.getId(), session.getId());
 			}
 			return true;
 		} else {
@@ -300,7 +298,7 @@ public class UserSessionMemcache extends SessionMemcache {
 	
 	public Object user_get(String sessionId) {
 		if (sessionId != null) {
-			return this.get(sessionId);
+			return this.sessionCache.get(sessionId);
 		} else {
 			return null;
 		}
@@ -308,7 +306,7 @@ public class UserSessionMemcache extends SessionMemcache {
 	
 	public Object user_get(String sessionId, String ext, boolean delete) {
 		if (sessionId != null) {
-			return this.get(sessionId, ext, delete);
+			return this.sessionCache.get(sessionId, ext, delete);
 		} else {
 			return null;
 		}
@@ -325,7 +323,7 @@ public class UserSessionMemcache extends SessionMemcache {
 	
 	public void user_set(String sessionId, String ext, Object o) {
 		if (sessionId != null) {
-			this.set(sessionId, ext, o);
+			this.sessionCache.set(sessionId, ext, o);
 		}
 	}
 

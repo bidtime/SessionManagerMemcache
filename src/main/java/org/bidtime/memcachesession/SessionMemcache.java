@@ -1,6 +1,6 @@
 package org.bidtime.memcachesession;
 
-import org.bidtime.memcache.MemcacheFlagKeyManage;
+import org.bidtime.memcache.MemcacheKeyManage;
 
 /**
  * 不做登录验证枚举
@@ -10,10 +10,10 @@ import org.bidtime.memcache.MemcacheFlagKeyManage;
  */
 public class SessionMemcache {
 	
-	protected MemcacheFlagKeyManage sessionCache;
+	protected MemcacheKeyManage sessionCache;
 	
 	public SessionMemcache() {
-		this(false);
+		this.singleLogin = false;
 	}
 	
 	public SessionMemcache(boolean singleLogin) {
@@ -32,11 +32,11 @@ public class SessionMemcache {
 		this.singleLogin = singleLogin;
 	}
 	
-	public MemcacheFlagKeyManage getSessionCache() {
+	public MemcacheKeyManage getSessionCache() {
 		return sessionCache;
 	}
 
-	public void setSessionCache(MemcacheFlagKeyManage sessionCache) {
+	public void setSessionCache(MemcacheKeyManage sessionCache) {
 		this.sessionCache = sessionCache;
 	}
 
