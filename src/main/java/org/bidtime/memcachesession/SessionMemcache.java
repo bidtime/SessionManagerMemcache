@@ -8,20 +8,21 @@ import org.bidtime.memcache.MemcacheFlagKeyManage;
  * @author karl
  * 
  */
-public class SessionMemcache extends MemcacheFlagKeyManage {
+public class SessionMemcache {
 	
-	public SessionMemcache(String userFlag) {
-		this(userFlag, false);
+	protected MemcacheFlagKeyManage sessionCache;
+	
+	public SessionMemcache() {
+		this(false);
 	}
 	
-	public SessionMemcache(String userFlag, boolean singleLogin) {
-		super(userFlag);
-		setSingleLogin(singleLogin);
+	public SessionMemcache(boolean singleLogin) {
+		this.singleLogin = singleLogin;
 	}
-	
+
 	private boolean singleLogin;
 
-	private SessionOnlineMemcache onlineCache;
+	protected SessionOnlineMemcache onlineCache;
 	
 	public boolean isSingleLogin() {
 		return singleLogin;
@@ -29,11 +30,14 @@ public class SessionMemcache extends MemcacheFlagKeyManage {
 
 	public void setSingleLogin(boolean singleLogin) {
 		this.singleLogin = singleLogin;
-		if (!singleLogin) {
-			onlineCache = new SessionOnlineMemcache(userFlag + "_doubleuseronline_");
-		} else {
-			onlineCache = null;
-		}
+	}
+	
+	public MemcacheFlagKeyManage getSessionCache() {
+		return sessionCache;
+	}
+
+	public void setSessionCache(MemcacheFlagKeyManage sessionCache) {
+		this.sessionCache = sessionCache;
 	}
 
 	public SessionOnlineMemcache getOnlineCache() {
