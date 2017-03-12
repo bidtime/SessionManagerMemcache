@@ -20,7 +20,7 @@ import org.bidtime.session.bean.SessionUserBase;
 public class UserSessionMemcache extends SessionMemcache {
 
 	private static final Logger logger = Logger
-			.getLogger(UserSessionMemcache.class);
+			.getLogger(UserSessionCache.class);
 	
 	public UserSessionMemcache() {
 		super();
@@ -262,7 +262,7 @@ public class UserSessionMemcache extends SessionMemcache {
 					nLoginState = 2;
 				} else {
 					//replace sessionId's user memcache
-					this.sessionCache.replace(sessionId, u);
+					// this.sessionCache.replace(sessionId, u);
 					nLoginState = 1;
 				}
 			}
