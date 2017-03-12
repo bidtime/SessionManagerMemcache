@@ -6,6 +6,7 @@ package org.bidtime.session;
 import javax.servlet.http.HttpServletRequest;
 
 import org.bidtime.memcache.MemcacheFlagKeyManage;
+import org.bidtime.session.utils.RequestSessionUtils;
 
 /**
  * @author Administrator
