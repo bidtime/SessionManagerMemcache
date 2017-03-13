@@ -17,18 +17,15 @@ import org.bidtime.session.utils.CookieUtils;
 public class RequestSessionUtils {
 	
 	private static HttpSession getSession(HttpServletRequest request,
-			boolean bForce) {
-		HttpSession session = request.getSession(false);
-		if (bForce && session == null) {
-			session = request.getSession(true);
-		}
+			boolean newSession) {
+		HttpSession session = request.getSession(newSession);
 		return session;
 	}
 	
 	public static String getSessionId(HttpServletRequest request,
-			boolean bForce) {
-		HttpSession session = getSession(request, bForce);
-		if (session!=null) {
+			boolean newSession) {
+		HttpSession session = getSession(request, newSession);
+		if (session != null) {
 			return session.getId();
 		} else {
 			return null;

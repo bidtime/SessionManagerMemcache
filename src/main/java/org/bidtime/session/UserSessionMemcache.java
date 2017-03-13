@@ -317,14 +317,18 @@ public class UserSessionMemcache extends SessionMemcache {
 		user_set(req, key, o, true);
 	}
 	
-	public void user_set(HttpServletRequest req, String key, Object o, boolean newSession) {
-		String sessionId = getSessionId(req, newSession);
-		user_set(sessionId, key, o);
+	public void user_set(HttpServletRequest req, String key, Object value, boolean newSession) {
+		HttpSession session = req.getSession(newSession);
+		user_set(session, key, value);
 	}
 	
-	public void user_set(String sessionId, String ext, Object o) {
+	protected void user_set(HttpSession session, String ext, Object value) {
+		if (session == null) {
+			return;
+		}
+		String sessionId = session.getId();
 		if (sessionId != null) {
-			this.sessionCache.set(sessionId, ext, o);
+			this.sessionCache.set(sessionId, ext, value);
 		}
 	}
 
