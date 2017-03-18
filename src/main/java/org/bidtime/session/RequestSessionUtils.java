@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.bidtime.session.utils;
+package org.bidtime.session;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

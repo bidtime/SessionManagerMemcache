@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.bidtime.memcachesession.SessionMemcache;
 import org.bidtime.session.bean.SessionUserBase;
-import org.bidtime.session.utils.RequestSessionUtils;
 
 /**
  * @author Administrator
