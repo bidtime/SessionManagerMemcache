@@ -257,12 +257,11 @@ public class UserSessionMemcache extends SessionMemcache {
 			int nLoginState = 0;
 			SessionUserBase u = user_getUserOfSessionId(sessionId);
 			if (u != null) {
-				if (this.getOnlineCache().isDoubleOnLine(
-					u.getId(), sessionId)) {
+				if (this.getOnlineCache().isDoubleOnLine(u.getId(), sessionId)) {
 					nLoginState = 2;
 				} else {
 					//replace sessionId's user memcache
-					// this.sessionCache.replace(sessionId, u);
+					this.sessionCache.replace(sessionId, u);
 					nLoginState = 1;
 				}
 			}
