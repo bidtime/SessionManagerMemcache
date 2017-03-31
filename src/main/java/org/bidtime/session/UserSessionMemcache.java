@@ -34,12 +34,13 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	public SessionLoginState getSessionLoginState(HttpServletRequest req) {
 		return getSessionLoginState(req, false);
 	}
-	
+
+	/*
+	 * 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限
+	 */
 	public SessionLoginState getSessionLoginState(HttpServletRequest req, boolean newSession) {
 		String sessionId = getSessionId(req, newSession);
-	    // 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限
-	    SessionLoginState sessionLogin = getSessionLoginState(sessionId);
-	    return sessionLogin;
+		return getSessionLoginState(sessionId);
 	}
 
 	// req_logout
@@ -71,16 +72,6 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 		return request_login(req, u, false);
 	}
 
-	// getUser
-	private SessionUserBase getUser(String sessionId) {
-		Object obj = get(sessionId);
-		if (obj != null) {
-			return (SessionUserBase)obj;
-		} else {
-			return null;
-		}
-	}
-
 	// getUserOfRequest
 	public SessionUserBase getUser(HttpServletRequest req) {
 		return getUser(req, false);
@@ -89,47 +80,6 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	// getUserOfRequest
 	public SessionUserBase getUser(HttpServletRequest req, boolean newSession) {
 		return getUser(getSessionId(req, newSession));
-	}
-
-	// session_destroy
-	private void sessionDestroy(String sessionId, boolean bInvalid) {
-		if (sessionId != null) {
-			this.sessionCache.delete(sessionId);
-			this.onlineCache.delete(sessionId);
-		}
-	}
-	
-	protected SessionLoginState getSessionLoginState(String sessionId) {
-		if (sessionId != null) {
-			int loginState = StateConst.NOT_LOGIN;
-			SessionUserBase u = getUser(sessionId);
-			if (u != null) {
-				if (this.getOnlineCache().isDoubleOnLine(u.getId(), sessionId)) {
-					loginState = StateConst.ANOTHER_LOGIN;
-				} else {
-					// replace sessionId's user memcache
-					this.sessionCache.replace(sessionId, u);
-					loginState = StateConst.LOGGED_IN;
-				}
-			}
-			SessionLoginState sessionBean = new SessionLoginState(u, loginState);
-			return sessionBean;
-		} else {
-			return null;
-		}
-	}
-	
-	protected boolean user2DoubleOnLine(String sessionId, SessionUserBase u) {
-		if (sessionId != null && u != null) {
-			// 设置user对象
-			this.sessionCache.set(sessionId, u);
-			if (this.isSingleLogin()) {
-				this.onlineCache.set(u.getId(), sessionId);
-			}
-			return true;
-		} else {
-			return false;
-		}
 	}
 	
 	// get ext
@@ -143,22 +93,6 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 		return get(sessionId, ext, delete);
 	}
 	
-	private Object get(String key) {
-		if (key != null) {
-			return this.sessionCache.get(key);
-		} else {
-			return null;
-		}
-	}
-	
-	private Object get(String key, String ext, boolean delete) {
-		if (key != null) {
-			return this.sessionCache.get(key, ext, delete);
-		} else {
-			return null;
-		}
-	}
-	
 	// set ext
 	
 	public void set(HttpServletRequest req, String ext, Object o) {
@@ -170,11 +104,7 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 		set(sessionId, ext, value);
 	}
 	
-	private void set(String sessionId, String ext, Object value) {
-		if (sessionId != null) {
-			this.sessionCache.set(sessionId, ext, value);
-		}
-	}
+	// implments
 
 	public void logout(HttpServletRequest req) {
 		request_logout(req);
@@ -199,48 +129,6 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 //	}
 	
 //	public String user_getUserIdOfRequest(HttpServletRequest req, Long defaultVal) {
-//		Long id = 
-//	}
-
-	// user_getUserIdOfSessionId
-//	private Long user_getUserIdOfSessionId(String sessionId) {
-//		SessionUserBase u = user_getUserOfSessionId(sessionId);
-//		if (u != null) {
-//			return u.get();
-//		} else {
-//			return null;
-//		}
-//	}
-	
-	// user_getUserNameOfRequest
-//	public String user_getUserNameOfRequest(HttpServletRequest req) {
-//		String sessionId = getSessionId(req);
-//		return user_getUserNameOfSessionId(sessionId);
-//	}
-	
-	// user_getUserNameOfSessionId
-//	private String user_getUserNameOfSessionId(String sessionId) {
-//		SessionUserBase u = user_getUserOfSessionId(sessionId);
-//		if (u != null) {
-//			return u.getName();
-//		} else {
-//			return null;
-//		}
-//	}
-
-	// user_isLoginOfHttpSession
-//	public boolean user_isLoginOfSessionId(String sessionId) {
-//		SessionUserBase u = user_getUserOfSessionId(sessionId);
-//		if (u != null) {
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
-
-//	// isUserLogin
-//	public boolean isUserLogin(String userId) {
-//		return this.getOnlineCache().isUserLogined(userId);
 //	}
 
 }
