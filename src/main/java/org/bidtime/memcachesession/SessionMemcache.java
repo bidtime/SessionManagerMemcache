@@ -64,16 +64,19 @@ public class SessionMemcache {
 			int loginState = StateConst.NOT_LOGIN;
 			SessionUserBase u = getUser(sessionId);
 			if (u != null) {
-				if (this.getOnlineCache().isDoubleOnLine(u.getId(), sessionId)) {
-					loginState = StateConst.ANOTHER_LOGIN;
-				} else {
-					// replace sessionId's user memcache
-					this.sessionCache.replace(sessionId, u);
+				if (isSingleLogin()) {
 					loginState = StateConst.LOGGED_IN;
+				} else {				
+					if (getOnlineCache().notEquals(u.getId(), sessionId)) {
+						loginState = StateConst.ANOTHER_LOGIN;
+					} else {
+						// replace sessionId's user memcache
+						// this.sessionCache.replace(sessionId, u);
+						loginState = StateConst.LOGGED_IN;
+					}
 				}
 			}
-			SessionLoginState sessionBean = new SessionLoginState(u, loginState);
-			return sessionBean;
+			return new SessionLoginState(u, loginState);
 		} else {
 			return null;
 		}

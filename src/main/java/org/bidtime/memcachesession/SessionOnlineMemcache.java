@@ -19,16 +19,7 @@ public class SessionOnlineMemcache extends MemcacheFlagKeyManage {
 	}
 	
 	public boolean isOnLine(String id, String sessionId) {
-		String val = getString(id);
-		if (val != null) {
-			if (StringUtils.isNotEmpty(val)) {
-				return StringUtils.equals(val, sessionId);
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
+		return equals(id, sessionId, false);
 	}
 	
 	public boolean isUserLogined(String userId) {
@@ -36,17 +27,8 @@ public class SessionOnlineMemcache extends MemcacheFlagKeyManage {
 		return (StringUtils.isEmpty(val)) ? false : true;
 	}
 	
-	public boolean isDoubleOnLine(String id, String sessionId) {
-		String val = getString(id);
-		if (val != null) {
-			if (StringUtils.isNotEmpty(val)) {
-				return !StringUtils.equals(val, sessionId);
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
+//	public boolean isDoubleOnLine(String id, String sessionId) {
+//		return notEquals(id, sessionId, false);
+//	}
 
 }

@@ -44,15 +44,18 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	}
 
 	// req_logout
+	@Deprecated
 	public void request_logout(HttpServletRequest req) {
 		sessionDestroy(getSessionId(req), true);
 	}
 	
-	public boolean request_login(HttpServletRequest req, SessionUserBase u) {
+	@Deprecated
+	private boolean request_login(HttpServletRequest req, SessionUserBase u) {
 		return request_login(req, u, true);
 	}
 	
 	// req_login
+	@Deprecated
 	private boolean request_login(HttpServletRequest req, SessionUserBase u, boolean newSession) {
 		// 强制将当前用户退出登陆
 		sessionDestroy(getSessionId(req), true);
@@ -62,12 +65,14 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	}
 
 	// re_login
+	@Deprecated
 	public boolean re_login(HttpServletRequest req) {
 		SessionUserBase u = getUser(req);
 		return request_login(req, u, false);
 	}
 
 	// re_login
+	@Deprecated
 	public boolean re_login(HttpServletRequest req, SessionUserBase u) {
 		return request_login(req, u, false);
 	}
