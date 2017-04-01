@@ -16,6 +16,8 @@ import org.bidtime.session.utils.CookieUtils;
  */
 public class RequestSessionUtils {
 	
+	private static final String JSESSIONID = "JSESSIONID";
+	
 	public static String getSessionId(HttpServletRequest req, boolean newSession) {
 		String sessionId = getSessionIdOfCookie(req);
 		if (sessionId == null) {
@@ -55,10 +57,10 @@ public class RequestSessionUtils {
 		if (count < 1 ) {	// <=0
 			return null;
 		}
-
+		
 		for (int i = count - 1; i >= 0; i--) {
 			Cookie cookie = (Cookie) serverCookies[i];
-			if (equals(cookie.getName(), "JSESSIONID")) {
+			if (equals(cookie.getName(), JSESSIONID)) {
 				return cookie.getValue();
 			}
 		}
