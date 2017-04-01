@@ -36,19 +36,9 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	public SessionLoginState getSessionLoginState(HttpServletRequest req, boolean newSession) {
 		String sessionId = getSessionId(req, newSession);
 		SessionLoginState sessionLogin = getSessionLoginState(sessionId);
-
-		int nLoginState = StateConst.NOT_LOGIN;
 		if (sessionLogin != null) {
-			nLoginState = sessionLogin.getLoginState();
+			req.setAttribute(SESSION_ATTRIBUTE_KEY, sessionLogin.getSessionUser());
 		}
-		
-		if (nLoginState == StateConst.LOGGED_IN) {
-			HttpSession session = req.getSession(false);
-			if (session != null) {
-				session.setAttribute(SESSION_ATTRIBUTE_KEY, sessionLogin.getSessionUser());
-			}
-		}
-
 		return sessionLogin;
 	}
 	
@@ -82,20 +72,20 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	// req_login
 	@Deprecated
 	private boolean request_login(HttpServletRequest req, SessionUserBase u, boolean newSession) {
-		String sessionId = RequestSessionUtils.getSessionIdOfCookie(req);
-		if (sessionId == null) {
-			HttpSession session = req.getSession(false);
-			if (session == null) {
-				session = req.getSession(true);
-				sessionId = session.getId();
-			} else {
-				sessionId = session.getId();
-			}
-		//} else {
-			// 强制将当前用户退出登陆
-			//sessionDestroy(sessionId, true);
-		}
-//		String sessionId = this.getSessionId(req, newSession);
+//		String sessionId = RequestSessionUtils.getSessionIdOfCookie(req);
+//		if (sessionId == null) {
+//			HttpSession session = req.getSession(false);
+//			if (session == null) {
+//				session = req.getSession(true);
+//				sessionId = session.getId();
+//			} else {
+//				sessionId = session.getId();
+//			}
+//		//} else {
+//			// 强制将当前用户退出登陆
+//			// sessionDestroy(sessionId, true);
+//		}
+		String sessionId = this.getSessionId(req, newSession);
 		// req login
 		return user2DoubleOnLine(sessionId, u);
 	}
@@ -135,14 +125,8 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 
 	// getUser
 	public SessionUserBase getUser(HttpServletRequest req, boolean newSession) {
-		SessionUserBase user = null;
-		HttpSession session = req.getSession(false);
-		if (session != null) {
-			user = (SessionUserBase)session.getAttribute(SESSION_ATTRIBUTE_KEY);
-			if (user == null) {
-				user = this.getUser(getSessionId(req, newSession));
-			}
-		} else {
+		SessionUserBase user = (SessionUserBase)req.getAttribute(SESSION_ATTRIBUTE_KEY);
+		if (user == null) {
 			user = this.getUser(getSessionId(req, newSession));
 		}
 		return user;
