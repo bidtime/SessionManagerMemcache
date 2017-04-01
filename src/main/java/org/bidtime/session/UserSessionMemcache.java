@@ -15,6 +15,8 @@ import org.bidtime.session.bean.SessionUserBase;
  */
 public class UserSessionMemcache extends SessionMemcache implements IUserSessionBase {
 	
+	private static final String SESSION_ATTRIBUTE_KEY = "CSessionUser_Attr_Keyx";
+	
 	public UserSessionMemcache() {
 		super();
 	}
@@ -31,6 +33,25 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 		return RequestSessionUtils.getSessionId(req, newSession);
 	}
 	
+	public SessionLoginState getSessionLoginState(HttpServletRequest req, boolean newSession) {
+		String sessionId = getSessionId(req, newSession);
+		SessionLoginState sessionLogin = getSessionLoginState(sessionId);
+
+		int nLoginState = StateConst.NOT_LOGIN;
+		if (sessionLogin != null) {
+			nLoginState = sessionLogin.getLoginState();
+		}
+		
+		if (nLoginState == StateConst.LOGGED_IN) {
+			HttpSession session = req.getSession(false);
+			if (session != null) {
+				session.setAttribute(SESSION_ATTRIBUTE_KEY, sessionLogin.getSessionUser());
+			}
+		}
+
+		return sessionLogin;
+	}
+	
 	public SessionLoginState getSessionLoginState(HttpServletRequest req) {
 		return getSessionLoginState(req, false);
 	}
@@ -38,10 +59,14 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	/*
 	 * 0:未登陆, 1:正常登陆, 2:被其它用户踢, 3: 没有权限
 	 */
-	public SessionLoginState getSessionLoginState(HttpServletRequest req, boolean newSession) {
-		String sessionId = getSessionId(req, newSession);
-		return getSessionLoginState(sessionId);
-	}
+//	private SessionLoginState getSessionLoginState(HttpServletRequest req, boolean newSession) {
+//		String sessionId = getSessionId(req, newSession);
+//		return getSessionLoginState(sessionId);
+//	}
+//	
+//	public SessionLoginState getSessionLoginCache(HttpServletRequest req) {
+//		return getSessionLoginCache(req, false);
+//	}
 
 	// req_logout
 	@Deprecated
@@ -57,11 +82,22 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	// req_login
 	@Deprecated
 	private boolean request_login(HttpServletRequest req, SessionUserBase u, boolean newSession) {
-		// 强制将当前用户退出登陆
-		sessionDestroy(getSessionId(req), true);
+		String sessionId = RequestSessionUtils.getSessionIdOfCookie(req);
+		if (sessionId == null) {
+			HttpSession session = req.getSession(false);
+			if (session == null) {
+				session = req.getSession(true);
+				sessionId = session.getId();
+			} else {
+				sessionId = session.getId();
+			}
+		//} else {
+			// 强制将当前用户退出登陆
+			//sessionDestroy(sessionId, true);
+		}
+//		String sessionId = this.getSessionId(req, newSession);
 		// req login
-		HttpSession session = req.getSession(newSession);
-		return user2DoubleOnLine(session.getId(), u);
+		return user2DoubleOnLine(sessionId, u);
 	}
 
 	// re_login
@@ -77,14 +113,39 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 		return request_login(req, u, false);
 	}
 
-	// getUserOfRequest
+	// getUser
 	public SessionUserBase getUser(HttpServletRequest req) {
 		return getUser(req, false);
 	}
+	
+	// getUser
+//	public SessionUserBase getUser(HttpServletRequest req) {
+//		return getUser(req, false);
+//	}
+	
+//	// getUser
+//	public SessionUserBase getUser(HttpServletRequest req, boolean newSession) {
+//		return getUser(getSessionId(req, newSession));
+//	}
+//	
+//	// getUserCache
+//	public SessionUserBase getUserCache(HttpServletRequest req) {
+//		return getUser(req, false);
+//	}
 
-	// getUserOfRequest
+	// getUser
 	public SessionUserBase getUser(HttpServletRequest req, boolean newSession) {
-		return getUser(getSessionId(req, newSession));
+		SessionUserBase user = null;
+		HttpSession session = req.getSession(false);
+		if (session != null) {
+			user = (SessionUserBase)session.getAttribute(SESSION_ATTRIBUTE_KEY);
+			if (user == null) {
+				user = this.getUser(getSessionId(req, newSession));
+			}
+		} else {
+			user = this.getUser(getSessionId(req, newSession));
+		}
+		return user;
 	}
 	
 	// get ext
@@ -126,14 +187,5 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	public boolean relogin(HttpServletRequest req, SessionUserBase u) {
 		return re_login(req, u);
 	}
-	
-	// user_getUserIdOfRequest
-//	public Long getUserIdOfRequest(HttpServletRequest req) {
-//		String sessionId = getSessionId(req);
-//		return user_getUserIdOfSessionId(sessionId);
-//	}
-	
-//	public String user_getUserIdOfRequest(HttpServletRequest req, Long defaultVal) {
-//	}
 
 }
