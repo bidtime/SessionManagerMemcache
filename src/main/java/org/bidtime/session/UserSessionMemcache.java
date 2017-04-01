@@ -50,7 +50,7 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	}
 	
 	@Deprecated
-	private boolean request_login(HttpServletRequest req, SessionUserBase u) {
+	public boolean request_login(HttpServletRequest req, SessionUserBase u) {
 		return request_login(req, u, true);
 	}
 	

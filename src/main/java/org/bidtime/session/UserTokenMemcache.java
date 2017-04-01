@@ -62,7 +62,7 @@ public class UserTokenMemcache extends UserSessionMemcache {
 		setTokenToSession(token, req, res);
 	}
 	
-	private void setTokenToSession(String token, HttpServletRequest req, HttpServletResponse res) {
+	public void setTokenToSession(String token, HttpServletRequest req, HttpServletResponse res) {
 		String sessionId = getSessionId(req, true);
 		this.getSessionCache().set(token, sessionId);
 		RequestSessionUtils.setToken(res, token, this.getSessionCache().getDefaultTm());
