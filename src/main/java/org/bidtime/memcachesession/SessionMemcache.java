@@ -54,8 +54,10 @@ public class SessionMemcache {
 	// session_destroy
 	protected void sessionDestroy(String sessionId, boolean bInvalid) {
 		if (sessionId != null) {
-			this.sessionCache.delete(sessionId);
-			this.onlineCache.delete(sessionId);
+			SessionUserBase u = getUser(sessionId, true);
+			if (u != null) {
+				this.onlineCache.delete(u.getId());
+			}
 		}
 	}
 	
@@ -101,10 +103,27 @@ public class SessionMemcache {
 		}
 	}
 	
+	protected SessionUserBase getUser(String sessionId, boolean delete) {
+		Object obj = get(sessionId, delete);
+		if (obj != null) {
+			return (SessionUserBase)obj;
+		} else {
+			return null;
+		}
+	}
+	
 	// get
 	protected Object get(String key) {
 		if (key != null) {
 			return this.sessionCache.get(key);
+		} else {
+			return null;
+		}
+	}
+	
+	protected Object get(String key, boolean delete) {
+		if (key != null) {
+			return this.sessionCache.get(key, delete);
 		} else {
 			return null;
 		}
@@ -149,6 +168,39 @@ public class SessionMemcache {
 		if (sessionId != null) {
 			this.sessionCache.set(sessionId, ext, value);
 		}
+	}
+	
+	// isUserLogined
+	
+	public boolean isUserLogined(String userId) {
+		return this.onlineCache.isUserLogined(userId);
+	}
+	
+	public boolean isUserLogined(Long userId) {
+		return this.isUserLogined(String.valueOf(userId));
+	}
+	
+	public boolean isUserLogined(Integer userId) {
+		return this.isUserLogined(String.valueOf(userId));
+	}
+	
+	// logout
+	public boolean logout(String userId) {
+		String sessionId = onlineCache.getSessionId(userId, true);
+		if (sessionId == null) {
+			return false;
+		} else {
+			this.sessionCache.delete(sessionId);
+			return true;
+		}
+	}
+	
+	public boolean logout(Long userId) {
+		return this.logout(String.valueOf(userId));
+	}
+	
+	public boolean logout(Integer userId) {
+		return this.logout(String.valueOf(userId));
 	}
 
 }

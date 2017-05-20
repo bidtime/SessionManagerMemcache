@@ -106,21 +106,6 @@ public class UserSessionMemcache extends SessionMemcache implements IUserSession
 	public SessionUserBase getUser(HttpServletRequest req) {
 		return getUser(req, false);
 	}
-	
-	// getUser
-//	public SessionUserBase getUser(HttpServletRequest req) {
-//		return getUser(req, false);
-//	}
-	
-//	// getUser
-//	public SessionUserBase getUser(HttpServletRequest req, boolean newSession) {
-//		return getUser(getSessionId(req, newSession));
-//	}
-//	
-//	// getUserCache
-//	public SessionUserBase getUserCache(HttpServletRequest req) {
-//		return getUser(req, false);
-//	}
 
 	// getUser
 	public SessionUserBase getUser(HttpServletRequest req, boolean newSession) {

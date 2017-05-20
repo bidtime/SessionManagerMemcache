@@ -27,6 +27,23 @@ public class SessionOnlineMemcache extends MemcacheFlagKeyManage {
 		return (StringUtils.isEmpty(val)) ? false : true;
 	}
 	
+//	public boolean isUserLogined(Long userId) {
+//		return isUserLogined(String.valueOf(userId));
+//	}
+//	
+//	public boolean isUserLogined(Integer userId) {
+//		return isUserLogined(String.valueOf(userId));
+//	}
+	
+	public String getSessionId(String userId, boolean delete) {
+		String sessionId = getString(userId, delete);
+		return sessionId;
+	}
+	
+	public String getSessionId(Object userId, boolean delete) {
+		return getSessionId( String.valueOf(userId), delete );
+	}
+	
 //	public boolean isDoubleOnLine(String id, String sessionId) {
 //		return notEquals(id, sessionId, false);
 //	}
