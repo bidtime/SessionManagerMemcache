@@ -1,6 +1,6 @@
-package org.bidtime.memcachesession;
+package org.bidtime.cachesession;
 
-import org.bidtime.memcache.MemcacheKeyManage;
+import org.bidtime.cache.MemcacheKeyManage;
 import org.bidtime.session.SessionLoginState;
 import org.bidtime.session.StateConst;
 import org.bidtime.session.bean.SessionUserBase;

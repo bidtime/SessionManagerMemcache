@@ -5,7 +5,7 @@ package org.bidtime.session;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.bidtime.memcachesession.SessionMemcache;
+import org.bidtime.cachesession.SessionMemcache;
 import org.bidtime.session.bean.SessionUserBase;
 
 /**

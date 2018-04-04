@@ -1,7 +1,7 @@
-package org.bidtime.memcachesession;
+package org.bidtime.cachesession;
 
 import org.apache.commons.lang.StringUtils;
-import org.bidtime.memcache.MemcacheFlagKeyManage;
+import org.bidtime.cache.MemcacheFlagKeyManage;
 
 /**
  * 不做登录验证枚举
@@ -26,14 +26,6 @@ public class SessionOnlineMemcache extends MemcacheFlagKeyManage {
 		String val = getString(userId);
 		return (StringUtils.isEmpty(val)) ? false : true;
 	}
-	
-//	public boolean isUserLogined(Long userId) {
-//		return isUserLogined(String.valueOf(userId));
-//	}
-//	
-//	public boolean isUserLogined(Integer userId) {
-//		return isUserLogined(String.valueOf(userId));
-//	}
 	
 	public String getSessionId(String userId, boolean delete) {
 		String sessionId = getString(userId, delete);
